@@ -85,9 +85,69 @@ for (id in names(protein_data)) {
 }
 #--------End of Part with orthogonal encoding-------------------------------------------------------------------------------------
 
-  
 
-# Step 2: Sliding window encoding
+#--------Sliding window encoding-------------------------------------------------------------------------------------  
+
+library(caret)  # Load the caret package for model training and evaluation
+
+# Step 3: Grid search for optimal window length
+
+window_lengths <- seq(5, 25, by = 5)  # Set up a sequence of window lengths to test
+cv_folds <- 5  # Number of cross-validation folds
+
+# Function to create sliding window encoded data for a given window size
+create_encoded_data <- function(window_size, protein_data) {
+  encoded_data <- list()
+  
+  for (id in names(protein_data)) {
+    protein <- protein_data[[id]]
+    sequence <- protein$sequence
+    encoded_sequence <- protein$encoded_sequence
+    
+    for (i in 1:(nchar(sequence) - window_size + 1)) {
+      window <- substring(sequence, i, i + window_size - 1)
+      encoded_window <- substring(encoded_sequence, i, i + window_size - 1)
+      
+      encoded_data[[length(encoded_data) + 1]] <- list(window = window, encoded_window = encoded_window, label = "H/E/C")
+    }
+  }
+  
+  return(encoded_data)
+}
+
+# Function to train and evaluate a model with a specific window length using cross-validation
+evaluate_window_length <- function(window_length, protein_data, cv_folds) {
+  # Create encoded data for the given window length
+  encoded_data <- create_encoded_data(window_length, protein_data)
+  
+  # Convert the encoded data into a data frame for use with caret
+  encoded_data_df <- do.call(rbind, lapply(encoded_data, data.frame))
+  
+  # Set up cross-validation
+  control <- trainControl(method = "cv", number = cv_folds, classProbs = TRUE)
+  
+  # Train and evaluate the model
+  model <- train(label ~ ., data = encoded_data_df, method = "rf", trControl = control)
+  accuracy <- max(model$results$Accuracy)
+  
+  return(accuracy)
+}
+
+# Perform grid search to find the optimal window length
+results <- data.frame()
+for (window_length in window_lengths) {
+  accuracy <- evaluate_window_length(window_length, protein_data, cv_folds)
+  results <- rbind(results, data.frame(window_length = window_length, accuracy = accuracy))
+}
+
+# Print the results
+print(results)
+
+# Find the optimal window length
+optimal_window_length <- results[which.max(results$accuracy), "window_length"]
+print(paste("Optimal window length:", optimal_window_length))
+
+#--------End of Sliding window encoding-------------------------------------------------------------------------------------  
 
 # window_size <- 20  # Specify the desired window size
 #
