@@ -47,6 +47,46 @@ for (id in names(protein_data)) {
   print(paste("Encoded Sequence:", protein$encoded_sequence))
 }
 
+#--------Part with orthogonal encoding-------------------------------------------------------------------------------------
+
+# Define a function to orthogonally encode protein sequences
+orthogonal_encode <- function(sequence) {
+  # Define a list of amino acids
+  amino_acids <- c("A", "C", "D", "E", "F", "G", "H", "I", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "Y")
+  
+  # Initialize an empty matrix to store the encoded sequence
+  encoded_sequence <- matrix(0, nrow = length(sequence), ncol = length(amino_acids))
+  
+  # Loop through the sequence and encode each amino acid
+  for (i in 1:length(sequence)) {
+    aa <- substring(sequence, i, i)
+    aa_index <- match(aa, amino_acids)
+    if (!is.na(aa_index)) {
+      encoded_sequence[i, aa_index] <- 1
+    }
+  }
+  
+  return(encoded_sequence)
+}
+
+# Add the orthogonal encoding to each protein
+for (id in names(protein_data)) {
+  protein <- protein_data[[id]]
+  protein$encoded_sequence <- orthogonal_encode(protein$sequence)
+}
+
+# Print the stored protein data with orthogonal encoding
+for (id in names(protein_data)) {
+  protein <- protein_data[[id]]
+  print(paste("ID:", protein$id))
+  print(paste("Sequence:", protein$sequence))
+  print("Encoded Sequence:")
+  print(protein$encoded_sequence)
+}
+#--------End of Part with orthogonal encoding-------------------------------------------------------------------------------------
+
+  
+
 # Step 2: Sliding window encoding
 
 # window_size <- 20  # Specify the desired window size
