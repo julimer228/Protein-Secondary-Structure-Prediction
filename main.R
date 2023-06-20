@@ -1,4 +1,3 @@
-# Author: Julia Merta 
 # Year: 2023
 
 
@@ -7,7 +6,6 @@ library(glmnet) # for logistic regression and Lasso and Elastic-Net Regularized 
 library(parallel) 
 library(doParallel)
 # function to orthogonally encode the sequence
-# We add X (unknown aminoacid) as a new class 
 # @input - sequence - original sequence
 # @output - encoded_sequence - orthogonally encoded sequence
 orthogonally_encoding<-function(sequence){
@@ -169,7 +167,7 @@ create_samples<-function(window_size, filepath){
   samples <- data.frame(); # initialize variables
   
   
-  cl <- makeCluster(12);  # Tworzy klaster z 12 rdzeniami procesora
+  cl <- makeCluster(12);  
   registerDoParallel(cl);
   clusterExport(cl=cl, c('sample_protein', 'create_window','orthogonally_encoding'));
   
